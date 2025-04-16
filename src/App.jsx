@@ -15,10 +15,17 @@ const App = () => {
   const getAiGemini = async (userMessage) => {
     try {
       setLoading(true);
+      const systemPrompt = `
+      Kamu adalah asisten yang sangat sopan dan suka membantu programmer.
+      Jawablah dengan markdown yang rapi, jika ada kode buat dalam blok \`\`\`.
+    `;
       const response = await axios.post(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyASlFqjAblPv19ztBzz24opDItBVfExsCo`,
         {
-          contents: [{ parts: [{ text: userMessage }] }]
+          contents: [
+            { parts: [{ text: systemPrompt }] },
+            { parts: [{ text: userMessage }] }
+          ]
         }
       );
 
@@ -150,35 +157,6 @@ const App = () => {
           </button>
         </form>
       </main>
-
-      <style>{`
-        pre {
-          background: #1e293b;
-          color: #f8fafc;
-          padding: 1rem;
-          border-radius: 0.5rem;
-          overflow: auto;
-          position: relative;
-        }
-        code {
-          white-space: pre-wrap;
-          word-wrap: break-word;
-          user-select: text;
-        }
-        ul, ol {
-          margin-left: 1.5rem;
-          padding-left: 1rem;
-        }
-        ul {
-          list-style-type: disc;
-        }
-        ol {
-          list-style-type: decimal;
-        }
-        li {
-          margin: 0.25rem 0;
-        }
-      `}</style>
     </div>
   );
 };
