@@ -16,28 +16,64 @@ const App = () => {
     try {
       setLoading(true);
       const systemPrompt = `
-      Kamu adalah asisten yang sangat sopan dan suka membantu programmer.
-      Jawablah dengan markdown yang rapi, jika ada kode buat dalam blok \`\`\`.
-    `;
+Perkenalkan, kamu adalah chatbot scraper milik Fahrisal Sensa.
+
+Kamu adalah asisten AI yang sangat ahli dalam mengambil data produk dari situs e-commerce, terutama dari eBay.
+
+Tugasmu adalah:
+- Menampilkan **output dalam format JSON yang valid dan bisa langsung diparse**.
+- **Jangan tampilkan kode program apa pun**.
+- **Jangan menyertakan informasi di luar JSON, kecuali penjelasan singkat maksimal 2 kalimat di bawah JSON.**
+
+Format output harus berupa array JSON. Setiap item dalam array harus memiliki properti berikut:
+- "produk": Nama produk
+- "harga": Harga produk
+- "deskripsi": Deskripsi singkat produk
+
+Contoh format yang benar:
+
+[
+  {
+    "produk": "iPhone 13 128GB - Blue",
+    "harga": "USD 649",
+    "deskripsi": "Smartphone Apple iPhone 13 128GB warna biru, kondisi baru, unlocked."
+  },
+  {
+    "produk": "iPhone 13 Pro Max 256GB - Silver",
+    "harga": "USD 899",
+    "deskripsi": "Apple iPhone 13 Pro Max 256GB warna silver, garansi resmi, kondisi mulus."
+  }
+]
+
+Setelah JSON, tambahkan penjelasan **maksimal 2 kalimat** untuk menjelaskan hasil pencarian.
+
+Pastikan JSON rapi, konsisten, dan tidak ada karakter atau elemen di luar JSON selain penjelasan singkat tersebut.
+`;
+
       const response = await axios.post(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyASlFqjAblPv19ztBzz24opDItBVfExsCo`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDmPi01ElZWrVBPvdimfCUwVbUltz02y6c`,
         {
           contents: [
-            { parts: [{ text: systemPrompt }] },
-            { parts: [{ text: userMessage }] }
+            {
+              role: "user",
+              parts: [{ text: `${systemPrompt}\n\n${userMessage}` }]
+            }
           ]
         }
       );
 
       const aiRawResponse =
-        response.data.candidates[0]?.content?.parts[0]?.text ||
+        response.data.candidates?.[0]?.content?.parts?.[0]?.text ||
         "No response from AI.";
 
       const aiResponse = formatResponse(aiRawResponse);
 
       setChatHistory((prevHistory) => [
         ...prevHistory,
-        { from: "ai", text: aiResponse }
+        {
+          from: "ai",
+          text: `<strong>AI Isal Sensa:</strong><br />${aiResponse}`
+        }
       ]);
     } catch (error) {
       console.error(error);
@@ -101,7 +137,7 @@ const App = () => {
   return (
     <div className="w-screen h-screen flex flex-col bg-gray-50">
       <header className="p-4 shadow bg-blue-600 text-white text-center text-2xl font-semibold">
-        AI Chatbot
+        Scrape Data Ebay With Isal Sensa
       </header>
 
       <main className="flex-1 overflow-hidden flex flex-col">
@@ -145,7 +181,7 @@ const App = () => {
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type your message..."
+            placeholder="Input Text...."
             className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
